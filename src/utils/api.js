@@ -8,4 +8,3 @@ export function fetchRecipes (food = '') {
     .then((res) => res.json())
     .then(({ hits }) => hits.map(({ recipe }) => recipe))
 }
-Contact GitHub API Training Shop Blog About
