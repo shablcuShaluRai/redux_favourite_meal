@@ -17,14 +17,10 @@ export default function FoodList({food, onSelect}){
         <img src={item.image} alt={item.label} />
         <div>{Math.floor(item.calories)} Calories </div>
         <div>{item.source}</div>
-
-
-      </li>
+        </li>
 
     ))}
-
-
-    </ul>
+</ul>
   )
 
 }

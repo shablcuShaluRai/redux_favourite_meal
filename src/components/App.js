@@ -7,7 +7,7 @@ import Modal from 'react-modal'
 import ArrowRightIcon from 'react-icons/lib/fa/arrow-circle-right'
 import Loading from 'react-loading'
 import { fetchRecipes } from '../utils/api'
-
+import FoodList from './FoodList'
 
 class App extends Component {
 
@@ -89,7 +89,7 @@ return (
                     <button onclick={() => remove({meal, day})
                   }> clear</button>
                  </div>
-                 : <button onclick={() => this.openFoodModal({meal, day})} className='icon-btn'>
+                 : <button onclick={() => this.openFoodModal({meal,day})} className='icon-btn'>
                    <CalendarIcon size={30}/>
                  </button>
                }</li>
@@ -100,7 +100,44 @@ return (
         </div>
      </div>
 
-
+     <Modal
+          className='modal'
+          overlayClassName='overlay'
+          isOpen={foodModalOpen}
+          onRequestClose={this.closeFoodModal}
+          contentLabel='Modal'
+        >
+          <div>
+            {loadingFood === true
+              ? <Loading delay={200} type='spin' color='#222' className='loading' />
+              : <div className='search-container'>
+                  <h3 className='subheader'>
+                    Find a meal for {capitalize(this.state.day)} {this.state.meal}.
+                  </h3>
+                  <div className='search'>
+                    <input
+                      className='food-input'
+                      type='text'
+                      placeholder='Search Foods'
+                      ref={(input) => this.input = input}
+                    />
+                    <button
+                      className='icon-btn'
+                      onClick={this.searchFood}>
+                        <ArrowRightIcon size={30}/>
+                    </button>
+                  </div>
+                  {food !== null && (
+                    <FoodList
+                      food={food}
+                      onSelect={(recipe) => {
+                        selectRecipe({ recipe, day: this.state.day, meal: this.state.meal })
+                        this.closeFoodModal()
+                      }}
+                    />)}
+                </div>}
+          </div>
+        </Modal>
 
 
     </div>
