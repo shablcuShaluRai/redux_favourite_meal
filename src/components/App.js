@@ -12,14 +12,24 @@ const {calendar, remove} = this.props
 const mealOrder = ['breakfast', 'lunch', 'dinner']
 return (
 
-    <div className='container'>
-    <ul className='meal-types'>
-    {mealOrder.map((mealType)=>(
-      <li key = {mealType} className= 'subheader'>
-      {capitalize(mealType)}
-      </li>
-    ))}
-    </ul>
+     <div className='container'>
+       <ul className='meal-types'>
+         {mealOrder.map((mealType)=>(
+           <li key = {mealType} className= 'subheader'>
+             {capitalize(mealType)}
+           </li>
+          ))}
+       </ul>
+
+       <div className='calendar'>
+         <div className='days'>
+           {calendar.map(({day}) =>
+            <h3 key = {day} className='subheader'>{capitalize(day)}</h3>
+
+            )}
+        </div>
+     </div>
+
     </div>
     )
   }
