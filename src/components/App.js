@@ -17,6 +17,7 @@ class App extends Component {
     meal:null,
     day:null,
     food:null,
+    ingredientsMOdalOpen:false,
     loadingFood:false
   }
 
@@ -56,13 +57,36 @@ class App extends Component {
     )
   }
 
+openIngrediantModel = () => this.setState(() => ({ingredientsMOdalOpen: true}))
+closeIngrediantModel = () => this.setState(() => ({ingredientsMOdalOpen:false}))
+generateShoppingList = () => {
+  return this.props.calendar.reduce((result,{ meals }) => {
+    const {breakfast,lunch,dinner}=meals
+    breakfast && result.push(breakfast)
+    lunch &&  result.push(lunch)
+    dinner && result.push(dinner)
+    return result
+  },[])
+  .reduce((ings,{ ingredientLines }) => ings.concat(ingredientLines),[])
+}
+
+
   render() {
-const {foodModalOpen, loadingFood, food } = this.state
+const {foodModalOpen, loadingFood, food, ingredientsMOdalOpen } = this.state
 const {calendar, remove, selectRecipe } = this.props
 const mealOrder = ['breakfast', 'lunch', 'dinner']
 return (
 
      <div className='container'>
+     <div className='nav'>
+        <h1 className='header'>UdaciMeals</h1>
+          <button
+            className='shopping-list'
+            onClick={this.openIngredientsModal}>
+              Shopping List
+          </button>
+        </div>
+
        <ul className='meal-types'>
          {mealOrder.map((mealType)=>(
            <li key = {mealType} className= 'subheader'>
@@ -138,6 +162,16 @@ return (
                     />)}
                 </div>}
           </div>
+        </Modal>
+
+        <Modal
+          className='modal'
+          overlayClassName='overlay'
+          isOpen={ingredientsMOdalOpen}
+          onRequestClose={this.closeIngredientsModal}
+          contentLabel='Modal'
+        >
+          {ingredientsMOdalOpen && <ShoppingList list={this.generateShoppingList()}/>}
         </Modal>
 
 
