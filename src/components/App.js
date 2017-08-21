@@ -1,85 +1,80 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
+import React, { Component } from 'react'
+import { connect } from 'react-redux'
 import { addRecipe, removeFromCalendar } from '../actions'
 import { capitalize } from '../utils/helpers'
-import CalendarIcon  from 'react-icons/lib/fa/calendar-plus-o'
+import CalendarIcon from 'react-icons/lib/fa/calendar-plus-o'
 import Modal from 'react-modal'
 import ArrowRightIcon from 'react-icons/lib/fa/arrow-circle-right'
 import Loading from 'react-loading'
 import { fetchRecipes } from '../utils/api'
 import FoodList from './FoodList'
-import ShoppingList from './ShopingList'
+import ShoppingList from './ShoppingList'
 
 class App extends Component {
-
   state = {
     foodModalOpen: false,
-    meal:null,
-    day:null,
-    food:null,
-    ingredientsMOdalOpen:false,
-    loadingFood:false
+    meal: null,
+    day: null,
+    food: null,
+    ingredientsModalOpen: false,
+    loadingFood: false,
   }
-
-  openFoodModal = ({ meal, day}) => {
+  openFoodModal = ({ meal, day }) => {
     this.setState(() => ({
       foodModalOpen: true,
       meal,
-      day
+      day,
     }))
   }
-
   closeFoodModal = () => {
-    this.setState(() =>({
+    this.setState(() => ({
       foodModalOpen: false,
-      meal:null,
-      day:null,
-      food:null
-    })
-  )
+      meal: null,
+      day: null,
+      food: null,
+    }))
   }
-
-
-  searchFood = (e) =>{
-    if(!this.input.value){
+  //when is invoked
+  searchFood = (e) => {
+    if (!this.input.value) {
       return
     }
+
     e.preventDefault()
-    this.setState(() => ({
-      loadingFood: true
-    }))
 
-    fetchRecipes(this.input.value).then((food) =>this.setState(() => ({
-      food,
-      loadingFood: false,
-    }))
+    this.setState(() => ({ loadingFood: true }))
 
-    )
+    fetchRecipes(this.input.value)
+      .then((food) => this.setState(() => ({
+        food,
+        loadingFood: false,
+      })))
   }
+  openIngredientsModal = () => this.setState(() => ({ ingredientsModalOpen: true }))
+  closeIngredientsModal = () => this.setState(() => ({ ingredientsModalOpen: false }))
+  generateShoppingList = () => {
+    return this.props.calendar.reduce((result, { meals }) => {
+      const { breakfast, lunch, dinner } = meals
 
-openIngrediantModel = () => this.setState(() => ({ingredientsMOdalOpen: true}))
-closeIngrediantModel = () => this.setState(() => ({ingredientsMOdalOpen:false}))
-generateShoppingList = () => {
-  return this.props.calendar.reduce((result,{ meals }) => {
-    const {breakfast,lunch,dinner}=meals
-    breakfast && result.push(breakfast)
-    lunch &&  result.push(lunch)
-    dinner && result.push(dinner)
-    return result
-  },[])
-  .reduce((ings,{ ingredientLines }) => ings.concat(ingredientLines),[])
-}
+      breakfast && result.push(breakfast)
+      lunch && result.push(lunch)
+      dinner && result.push(dinner)
 
-
+      return result
+    }, [])
+    .reduce((ings, { ingredientLines }) => ings.concat(ingredientLines), [])
+  }
   render() {
-const {foodModalOpen, loadingFood, food, ingredientsMOdalOpen } = this.state
-const {calendar, remove, selectRecipe } = this.props
-const mealOrder = ['breakfast', 'lunch', 'dinner']
-return (
+    const { foodModalOpen, loadingFood, food, ingredientsModalOpen } = this.state
+    const { calendar, selectRecipe, remove } = this.props
+    const mealOrder = ['breakfast', 'lunch', 'dinner']
 
-     <div className='container'>
-     <div className='nav'>
-        <h1 className='header'>UdaciMeals</h1>
+
+    return (
+      <div className='container'>
+
+        <div className='nav'>
+          <h1 className='header'>My Favourite Meals</h1>
           <button
             className='shopping-list'
             onClick={this.openIngredientsModal}>
@@ -87,45 +82,39 @@ return (
           </button>
         </div>
 
-       <ul className='meal-types'>
-         {mealOrder.map((mealType)=>(
-           <li key = {mealType} className= 'subheader'>
-             {capitalize(mealType)}
-           </li>
+        <ul className='meal-types'>
+          {mealOrder.map((mealType) => (
+            <li key={mealType} className='subheader'>
+              {capitalize(mealType)}
+            </li>
           ))}
-       </ul>
+        </ul>
 
-       <div className='calendar'>
-         <div className='days'>
-           {calendar.map(({day}) =>
-            <h3 key = {day} className='subheader'>{capitalize(day)}</h3>
-
-            )}
+        <div className='calendar'>
+          <div className='days'>
+            {calendar.map(({ day }) => <h3 key={day} className='subheader'>{capitalize(day)}</h3>)}
+          </div>
+          <div className='icon-grid'>
+            {calendar.map(({ day, meals }) => (
+              <ul key={day}>
+                {mealOrder.map((meal) => (
+                  <li key={meal} className='meal'>
+                    {meals[meal]
+                      ? <div className='food-item'>
+                          <img src={meals[meal].image} alt={meals[meal].label}/>
+                          <button onClick={() => remove({meal, day})}>Clear</button>
+                        </div>
+                      : <button onClick={() => this.openFoodModal({meal, day})} className='icon-btn'>
+                          <CalendarIcon size={30}/>
+                        </button>}
+                  </li>
+                ))}
+              </ul>
+            ))}
+          </div>
         </div>
 
-        <div className='icon-grid'>
-           {calendar.map(({day, meals}) => (
-             <ul key = {day}>
-             {mealOrder.map((meal) =>(
-               <li key = {meal} className='meal'>
-               {meals[meal]?
-                 <div className= 'food-item'>
-                    <img src={meals[meal].image} alt= {meals[meal].label}/>
-                    <button onclick={() => remove({meal, day})
-                  }> clear</button>
-                 </div>
-                 : <button onclick={() => this.openFoodModal({meal,day})} className='icon-btn'>
-                   <CalendarIcon size={30}/>
-                 </button>
-               }</li>
-             )
-             )}
-             </ul>
-           ))}
-        </div>
-     </div>
-
-     <Modal
+        <Modal
           className='modal'
           overlayClassName='overlay'
           isOpen={foodModalOpen}
@@ -167,37 +156,47 @@ return (
         <Modal
           className='modal'
           overlayClassName='overlay'
-          isOpen={ingredientsMOdalOpen}
+          isOpen={ingredientsModalOpen}
           onRequestClose={this.closeIngredientsModal}
           contentLabel='Modal'
         >
-          {ingredientsMOdalOpen && <ShoppingList list={this.generateShoppingList()}/>}
+          {ingredientsModalOpen && <ShoppingList list={this.generateShoppingList()}/>}
         </Modal>
 
-
-    </div>
+      </div>
     )
   }
 }
-function mapStateToProps({calendar , food}){
-  const dayOrder = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday']
 
-    return {
-      calendar: dayOrder.map((day) => ({
-        day,
-        meals: Object.keys(calendar[day]).reduce((meals, meal) => {
-          meals[meal]= calendar[day][meal]?food[calendar[day][meal]]:null
-          return meals
-        },{})
-      }))
-    }
+//map our redux state to our component props
+//will receive the state calendar from store
+function mapStateToProps ({ food, calendar }) {
+  const dayOrder = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+
+  return {
+    //return object with calendar property
+    calendar: dayOrder.map((day) => ({
+      day,
+      //return all keys of the object in single object
+      meals: Object.keys(calendar[day]).reduce((meals, meal) => {
+        meals[meal] = calendar[day][meal]
+          ? food[calendar[day][meal]]
+          : null
+
+        return meals
+      }, {})
+    })),
   }
+}
 
-  function mapDispatchToProps(dispatch){
-    return {
-      selectRecipe : (data) => dispatch(addRecipe(data)),
-      remove : (data) => dispatch(removeFromCalendar(data))
-        }
+function mapDispatchToProps (dispatch) {
+  return {
+    selectRecipe: (data) => dispatch(addRecipe(data)),
+    remove: (data) => dispatch(removeFromCalendar(data))
   }
+}
 
-export default connect(mapStateToProps,mapDispatchToProps)(App);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(App)
