@@ -78,7 +78,7 @@ class App extends Component {
           <button
             className='shopping-list'
             onClick={this.openIngredientsModal}>
-              Shopping List
+              Ingredient of food
           </button>
         </div>
 
